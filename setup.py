@@ -11,7 +11,5 @@ setup(
 		'hdfs',
 		'CAM2DistributedBackend',
 	],
-	use_scm_version=True,
-	setup_requires=['setuptools_scm'],
 	scripts=['bin/CAM2RESTfulAPI'],
 ) 

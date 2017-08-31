@@ -1,3 +1,13 @@
+"""The root module of the RESTful API
+
+This is the module that contains the Flask's app,
+the app's cache and configuration. Also, it includes
+the clients used by other modules like the database
+client and the storage client. Generally, this includes
+all the global (shared) objects (Singleton pattern).
+
+"""
+
 from flask import Flask, flash, request, redirect, url_for, render_template, send_file, g
 from clients.storage_client import StorageClient
 from clients.database_client import DatabaseClient
@@ -34,9 +44,15 @@ if not os.path.exists(database_path):
 		conn.commit()
 		conn.close()
 
+# The collection that includes all the running jobs
 jobs = deque()
+
+# Initializing the storage client
 storage_client = StorageClient(namenode_url)
+
+# Initializing the database client
 database_client = DatabaseClient(database_path)
 atexit.register(database_client.close_connection)
 
+# Including the routs
 import routes

@@ -1,0 +1,2 @@
+include CAM2RESTfulAPI/db.sql
+graft CAM2RESTfulAPI/templates

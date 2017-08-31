@@ -1,3 +1,14 @@
+"""The routes accepted by the RESTful API
+
+This is the module that contains the routes accepted
+by the API. 
+the app's cache and configuration. Also, it includes
+the clients used by other modules like the database
+client and the storage client. Generally, this includes
+all the global (shared) objects (Singleton pattern).
+
+"""
+
 from CAM2RESTfulAPI import app, database_client, storage_client
 
 from flask import request,  jsonify, send_file, after_this_request
@@ -8,11 +19,13 @@ import json, os
 
 # NOTE May move this method to the DatabaseClient class
 def _get_submission(username, submission_id):
+	'''Helper function to get the submission from the database by the username and the submission id'''
 	return database_client.query_db('SELECT * FROM Submissions WHERE username=? AND submission_id=?', args=(username, submission_id), one=True)
 
 @app.route('/submit/', methods=['POST'])
 @requires_auth
 def submit():
+	'''Accepts an authenticated request. Passes the needed parameter to the back-end to start a new job'''
 	username = request.authorization.username
 	submission_id = request.form['submission_id']
 	if not request.files.has_key('conf'):
@@ -37,6 +50,7 @@ def submit():
 @app.route('/status/', methods=['POST'])
 @requires_auth
 def status():
+	'''Accepts an authenticated request. Returns the status of a given submission, provided it exists'''
 	username = request.authorization.username
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
@@ -49,6 +63,7 @@ def status():
 @app.route('/terminate/', methods=[ 'POST'])
 @requires_auth
 def terminate():
+	'''Accepts an authenticated request. Terminates the given submission, provided it is running'''
 	username = request.authorization.username
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
@@ -65,6 +80,7 @@ def terminate():
 @app.route('/download/', methods=[ 'POST'])
 @requires_auth
 def download():
+	'''Accepts an authenticated request. Sends the results of the submission back to the user, provided it is completed'''
 	username = request.authorization.username
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
@@ -86,6 +102,7 @@ def download():
 @app.route('/delete/', methods=[ 'POST'])
 @requires_auth
 def delete():
+	'''Accepts an authenticated request. Deletes a submission and is results, provided it exists'''
 	username = request.authorization.username
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
@@ -105,13 +122,15 @@ def delete():
 @app.route('/submissions/', methods=[ 'POST'])
 @requires_auth
 def submissions():
-	username = request.form['username']
+	'''Accepts an authenticated request. Returns a summery of a user's jobs'''
+	username = request.authorization.username
 	
-	submissions = database_client.query_db('SELECT submission_id, status FROM Submissions WHERE username=?')
-	return jsonify(submissions) # BUG Error: 400 Bad Request
+	submissions = database_client.query_db('SELECT submission_id, status FROM Submissions WHERE username=?', args=(username,))
+	return jsonify(submissions)
 
 @app.route('/register/', methods=[ 'POST'])
 def register():
+	'''Registers a new user'''
 	username = request.form['username']
 	password = request.form['password']
 	registered = 'A user with "username" = "{}" added!'.format(username)
@@ -125,6 +144,7 @@ def register():
 @app.route('/unregister/', methods=[ 'POST'])
 @requires_auth
 def unregister():
+	'''Unregister a user from the system'''
 	username = request.authorization.username
 	unregistered = 'The user with "username" = "{}" has been removed!'.format(username)
 	not_found = 'Could not find a user with "username" = "{}"!'.format(username)
