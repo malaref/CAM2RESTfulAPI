@@ -15,7 +15,7 @@ from flask import request,  jsonify, send_file, after_this_request
 from clients.authentication_client import requires_auth
 from clients.job_client import JobClient
 
-import json, os
+import os
 
 # NOTE May move this method to the DatabaseClient class
 def _get_submission(username, submission_id):
@@ -44,7 +44,7 @@ def submit():
 		return 'The analyzer script must be a Python script'
 	if _get_submission(username, submission_id) is not None:
 		return 'Cannot have two submissions with the same "submission_id"'
-	JobClient.submit_job(username, submission_id, json.load(conf), analyzer)
+	JobClient.submit_job(username, submission_id, conf, analyzer)
 	return 'Job submitted!'
 
 @app.route('/status/', methods=['POST'])

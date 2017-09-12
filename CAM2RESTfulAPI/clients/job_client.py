@@ -9,7 +9,7 @@ the memory.
 
 from CAM2RESTfulAPI import jobs, database_client, master_url, namenode_url
 
-import tempfile, os, json, subprocess, threading
+import tempfile, os, subprocess, threading
 
 class JobClient(object):
 	'''A class to mange the jobs (creation, deletion, monitoring, etc.)'''
@@ -36,8 +36,7 @@ class JobClient(object):
 		self._temp_directory = tempfile.mkdtemp()
 		self._temp_conf_file_path = os.path.join(self._temp_directory, 'user_conf.json')
 		self._temp_analyzer_script_path = os.path.join(self._temp_directory, 'user_analyzer.py')
-		with open(self._temp_conf_file_path, 'w') as f:
-			json.dump(conf, f, sort_keys=True, indent=4)
+		conf.save(self._temp_conf_file_path)
 		analyzer_script.save(self._temp_analyzer_script_path)
 		# Submit the job
 		self._job = subprocess.Popen('exec CAM2DistributedBackend {0} {1} {2} {3} {4} {5}'.format(master_url, namenode_url, self.username, self.submission_id, self._temp_conf_file_path, self._temp_analyzer_script_path), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
