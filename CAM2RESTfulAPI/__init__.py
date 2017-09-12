@@ -54,5 +54,5 @@ storage_client = StorageClient(namenode_url)
 database_client = DatabaseClient(database_path)
 atexit.register(database_client.close_connection)
 
-# Including the routs
+# Including the routes
 import routes

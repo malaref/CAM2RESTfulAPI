@@ -18,7 +18,7 @@ class StorageClient(object):
 	
 	def __init__(self, namenode_url):
 		'''Initialize an internal client to interact with the storage system'''
-		self._internal_client = InsecureClient(namenode_url)
+		self._internal_client = InsecureClient(namenode_url, user='CAM2')
 	
 	def prepare_result_as_zip_file(self, username, submission_id):
 		'''Prepares the results of a given submission by a given user as a .zip file'''

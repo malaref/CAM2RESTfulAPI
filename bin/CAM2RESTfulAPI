@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo ">>>> Launching CAM2RESTfulAPI on Flask's built-in server"
-FLASK_APP=CAM2RESTfulAPI python -m flask run 
+FLASK_APP=CAM2RESTfulAPI python -m flask run --host=0.0.0.0
