@@ -11,7 +11,7 @@ all the global (shared) objects (Singleton pattern).
 
 from CAM2RESTfulAPI import app, database_client, storage_client
 
-from flask import request,  jsonify, send_file, after_this_request
+from flask import request,  jsonify, send_file, after_this_request, render_template, redirect
 from clients.authentication_client import requires_auth
 from clients.job_client import JobClient
 
@@ -21,6 +21,18 @@ import os
 def _get_submission(username, submission_id):
 	'''Helper function to get the submission from the database by the username and the submission id'''
 	return database_client.query_db('SELECT * FROM Submissions WHERE username=? AND submission_id=?', args=(username, submission_id), one=True)
+
+@app.route('/', methods=['GET'])
+def root():
+	'''Redirects to the dashboard'''
+	return redirect('/dashboard/')
+
+@app.route('/dashboard/', methods=['GET'])
+@requires_auth
+def dashboard():
+	'''Renders the HTML dashboard interface'''
+	username = request.authorization.username
+	return render_template('dashboard.html', submissions=database_client.query_db('SELECT * FROM Submissions WHERE username=?', args=(username,)))
 
 @app.route('/submit/', methods=['POST'])
 @requires_auth
@@ -60,7 +72,7 @@ def status():
 		return not_found
 	return jsonify(submission)
 
-@app.route('/terminate/', methods=[ 'POST'])
+@app.route('/terminate/', methods=['POST'])
 @requires_auth
 def terminate():
 	'''Accepts an authenticated request. Terminates the given submission, provided it is running'''
@@ -77,7 +89,7 @@ def terminate():
 		return terminated
 	return not_running
 
-@app.route('/download/', methods=[ 'POST'])
+@app.route('/download/', methods=['POST'])
 @requires_auth
 def download():
 	'''Accepts an authenticated request. Sends the results of the submission back to the user, provided it is completed'''
@@ -99,7 +111,7 @@ def download():
 		return response
 	return send_file(file_name)
 
-@app.route('/delete/', methods=[ 'POST'])
+@app.route('/delete/', methods=['POST'])
 @requires_auth
 def delete():
 	'''Accepts an authenticated request. Deletes a submission and is results, provided it exists'''
@@ -119,7 +131,7 @@ def delete():
 	storage_client.delete_result(username, submission_id)
 	return deleted
 
-@app.route('/submissions/', methods=[ 'POST'])
+@app.route('/submissions/', methods=['POST'])
 @requires_auth
 def submissions():
 	'''Accepts an authenticated request. Returns a summery of a user's jobs'''
@@ -128,7 +140,7 @@ def submissions():
 	submissions = database_client.query_db('SELECT submission_id, status FROM Submissions WHERE username=?', args=(username,))
 	return jsonify(submissions)
 
-@app.route('/register/', methods=[ 'POST'])
+@app.route('/register/', methods=['POST'])
 def register():
 	'''Registers a new user'''
 	username = request.form['username']
@@ -141,7 +153,7 @@ def register():
 		return registered
 	return exists
 
-@app.route('/unregister/', methods=[ 'POST'])
+@app.route('/unregister/', methods=['POST'])
 @requires_auth
 def unregister():
 	'''Unregister a user from the system'''
