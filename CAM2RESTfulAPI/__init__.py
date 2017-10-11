@@ -12,7 +12,7 @@ from flask import Flask, flash, request, redirect, url_for, render_template, sen
 from clients.storage_client import StorageClient
 from clients.database_client import DatabaseClient
 from collections import deque
-import os, json, sqlite3, atexit
+import os, json, atexit
 
 app = Flask(__name__)
 app.secret_key = 'some_secret'
@@ -39,8 +39,11 @@ else:
 database_path = os.path.join(cache_path, 'database.db')
 if not os.path.exists(database_path):
 	with app.open_resource('db.sql') as schema:
+		import sqlite3
 		conn = sqlite3.connect(database_path)
 		conn.executescript(schema.read())
+		from werkzeug.security import generate_password_hash
+		conn.execute('INSERT INTO Users(username, password_hash) VALUES ("admin", ?);', (generate_password_hash(raw_input('Admin password: ')),))
 		conn.commit()
 		conn.close()
 

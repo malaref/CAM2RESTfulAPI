@@ -1,7 +1,7 @@
 CREATE TABLE Users
 (
     username VARCHAR(30) PRIMARY KEY,
-    password VARCHAR(100) NOT NULL
+    password_hash VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Submissions
@@ -14,5 +14,3 @@ CREATE TABLE Submissions
     PRIMARY KEY(username, submission_id),
     FOREIGN KEY(username) REFERENCES Users(username) ON DELETE CASCADE
 );
-
-INSERT INTO Users(username, password) VALUES ('admin', 'top_secret_password');

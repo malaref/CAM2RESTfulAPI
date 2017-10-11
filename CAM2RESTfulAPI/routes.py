@@ -12,6 +12,7 @@ all the global (shared) objects (Singleton pattern).
 from CAM2RESTfulAPI import app, database_client, storage_client
 
 from flask import request,  jsonify, send_file, after_this_request, render_template, redirect
+from werkzeug.security import generate_password_hash
 from clients.authentication_client import requires_auth
 from clients.job_client import JobClient
 
@@ -149,7 +150,7 @@ def register():
 	exists = 'A user with "username" = "{}" already exists!'.format(username)
 	
 	if database_client.query_db('SELECT * FROM Users WHERE username=?', args=(username,), one=True) is None:
-		database_client.update_db('INSERT INTO Users(username, password) VALUES (?, ?);', args=(username, password))
+		database_client.update_db('INSERT INTO Users(username, password_hash) VALUES (?, ?);', args=(username, generate_password_hash(password)))
 		return registered
 	return exists
 
