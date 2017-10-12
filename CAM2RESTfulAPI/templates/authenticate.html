@@ -1,0 +1,119 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<title>CAM2</title>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a href="/" class="navbar-brand">CAM<sup>2</sup></a>
+				</div>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a data-toggle="modal" href="#loginModal">Login</a></li>
+				</ul>
+			</div>
+		</nav>
+		<div class="container-fluid">
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<ul class="list-group">
+						{% for message in messages %}
+							<li class="list-group-item">{{ message }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			{% endwith %}
+			<div id="loginModal" class="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title">Login</h4>
+						</div>
+						<form action="/login/" method="post" class="form-horizontal">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="username_text" class="control-label">Username</label>
+									<input class="form-control" type="text" name="username" id="username_text">
+								</div>
+								<div class="form-group">
+									<label for="password_text" class="control-label">Password</label>
+									<input class="form-control" type="password" name="password" id="password_text">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#registerModal">New user?</a>
+								<button type="reset" class="btn btn-default">Reset</button>
+								<button type="submit" class="btn btn-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="registerModal" class="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title">Register</h4>
+						</div>
+						<form action="/register/" method="post" class="form-horizontal">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="username_text" class="control-label">Username</label>
+									<input class="form-control" type="text" name="username" id="username_text">
+								</div>
+								<div class="form-group">
+									<label for="password_text" class="control-label">Password</label>
+									<input class="form-control" type="password" name="password" id="password_text">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#loginModal">Already a user?</a>
+								<button type="reset" class="btn btn-default">Reset</button>
+								<button type="submit" class="btn btn-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="responseModal" class="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title">Response</h4>
+						</div>
+						<div id="response" class="modal-body"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script>
+		<script>
+		$(document).ready(function() {
+			$('#loginModal').modal('show');
+		});
+		$(function() {
+			$('form').ajaxForm(function(result) {
+				$('.modal').modal('hide');
+				$('#response').text(result);
+				$('#responseModal').modal('show');
+			});
+			$('#responseModal').on('hide.bs.modal', function() {
+				window.location.replace("/");
+			});
+		});
+		</script>
+	</body>
+</html>

@@ -8,7 +8,8 @@ all the global (shared) objects (Singleton pattern).
 
 """
 
-from flask import Flask, flash, request, redirect, url_for, render_template, send_file, g
+from flask import Flask
+from flask_login import LoginManager, UserMixin
 from clients.storage_client import StorageClient
 from clients.database_client import DatabaseClient
 from collections import deque
@@ -56,6 +57,18 @@ storage_client = StorageClient(namenode_url)
 # Initializing the database client
 database_client = DatabaseClient(database_path)
 atexit.register(database_client.close_connection)
+
+# Flask-Login setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+@login_manager.user_loader
+def load_user(user_id):
+	if database_client.query_db('SELECT * FROM Users WHERE username=?', args=(str(user_id),), one=True) is not None:
+		user = UserMixin()
+		user.id = user_id
+		return user
+	return None
+login_manager.login_view = "/authenticate/"
 
 # Including the routes
 import routes

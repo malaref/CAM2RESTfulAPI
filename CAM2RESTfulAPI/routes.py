@@ -9,11 +9,11 @@ all the global (shared) objects (Singleton pattern).
 
 """
 
-from CAM2RESTfulAPI import app, database_client, storage_client
+from CAM2RESTfulAPI import app, database_client, storage_client, load_user
 
-from flask import request,  jsonify, send_file, after_this_request, render_template, redirect
-from werkzeug.security import generate_password_hash
-from clients.authentication_client import requires_auth
+from flask import request,  jsonify, send_file, after_this_request, render_template, redirect, abort
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from clients.job_client import JobClient
 
 import os
@@ -28,18 +28,23 @@ def root():
 	'''Redirects to the dashboard'''
 	return redirect('/dashboard/')
 
+@app.route('/authenticate/', methods=['GET'])
+def authenticate():
+	'''Renders the authorization page'''
+	return render_template('authenticate.html')
+
 @app.route('/dashboard/', methods=['GET'])
-@requires_auth
+@login_required
 def dashboard():
 	'''Renders the HTML dashboard interface'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	return render_template('dashboard.html', submissions=database_client.query_db('SELECT * FROM Submissions WHERE username=?', args=(username,)))
 
 @app.route('/submit/', methods=['POST'])
-@requires_auth
+@login_required
 def submit():
 	'''Accepts an authenticated request. Passes the needed parameter to the back-end to start a new job'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	submission_id = request.form['submission_id']
 	if not request.files.has_key('conf'):
 		return 'No configuration file'
@@ -61,10 +66,10 @@ def submit():
 	return 'Job submitted!'
 
 @app.route('/status/', methods=['POST'])
-@requires_auth
+@login_required
 def status():
 	'''Accepts an authenticated request. Returns the status of a given submission, provided it exists'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
 	not_found = 'Could not find a submission with "submission_id" = "{}"'.format(submission_id)
@@ -74,10 +79,10 @@ def status():
 	return jsonify(submission)
 
 @app.route('/terminate/', methods=['POST'])
-@requires_auth
+@login_required
 def terminate():
 	'''Accepts an authenticated request. Terminates the given submission, provided it is running'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
 	terminated = 'Submission with "submission_id" = "{}" terminated!'.format(submission_id)
@@ -91,10 +96,10 @@ def terminate():
 	return not_running
 
 @app.route('/download/', methods=['POST'])
-@requires_auth
+@login_required
 def download():
 	'''Accepts an authenticated request. Sends the results of the submission back to the user, provided it is completed'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
 	not_found = 'Could not find a submission with "submission_id" = "{}"'.format(submission_id)
@@ -113,10 +118,10 @@ def download():
 	return send_file(file_name)
 
 @app.route('/delete/', methods=['POST'])
-@requires_auth
+@login_required
 def delete():
 	'''Accepts an authenticated request. Deletes a submission and is results, provided it exists'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	submission_id = request.form['submission_id']
 	submission = _get_submission(username, submission_id)
 	not_found = 'Could not find a submission with "submission_id" = "{}"'.format(submission_id)
@@ -133,13 +138,42 @@ def delete():
 	return deleted
 
 @app.route('/submissions/', methods=['POST'])
-@requires_auth
+@login_required
 def submissions():
 	'''Accepts an authenticated request. Returns a summery of a user's jobs'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	
 	submissions = database_client.query_db('SELECT submission_id, status FROM Submissions WHERE username=?', args=(username,))
 	return jsonify(submissions)
+
+@app.route('/login/', methods=['POST'])
+def login():
+	'''Logs a user in'''
+	username = request.form['username']
+	password = request.form['password']
+	missing = 'Authentication fields missing'
+	not_found = 'Could not find a user with "username" = "{}"!'.format(username)
+	fail = 'Authentication failed!'
+	success = 'Logged in successfully!'
+	
+	if username is None or password is None:
+		return missing
+	user = database_client.query_db('SELECT * FROM Users WHERE username=?', args=(username,), one=True)
+	if user is None:
+		return not_found
+	if not check_password_hash(user['password_hash'], password):
+		return fail
+	login_user(load_user(unicode(username)))
+	return success
+
+@app.route('/logout/', methods=['POST'])
+@login_required
+def logout():
+	'''Logs a user out'''
+	success = 'Logged out successfully!'
+	
+	logout_user()
+	return success
 
 @app.route('/register/', methods=['POST'])
 def register():
@@ -155,10 +189,10 @@ def register():
 	return exists
 
 @app.route('/unregister/', methods=['POST'])
-@requires_auth
+@login_required
 def unregister():
 	'''Unregister a user from the system'''
-	username = request.authorization.username
+	username = str(current_user.id)
 	unregistered = 'The user with "username" = "{}" has been removed!'.format(username)
 	not_found = 'Could not find a user with "username" = "{}"!'.format(username)
 	running = 'Cannot unregister a user with running submission(s)!'.format(username)
