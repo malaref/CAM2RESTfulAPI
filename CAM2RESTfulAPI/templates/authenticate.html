@@ -3,11 +3,9 @@
 <html lang="en">
 	<head>
 		<title>CAM2</title>
-		<!-- Required meta tags -->
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- Bootstrap CSS -->
-		<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css" rel="stylesheet" integrity="sha384-D9XILkoivXN+bcvB2kSOowkIvIcBbNdoDQvfBNsxYAIieZbx8/SI4NeUvrRGCpDi" crossorigin="anonymous">
 	</head>
 	<body>
 		<nav class="navbar navbar-default">
@@ -16,7 +14,7 @@
 					<a href="/" class="navbar-brand">CAM<sup>2</sup></a>
 				</div>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a data-toggle="modal" href="#loginModal">Login</a></li>
+					<li><a data-toggle="modal" href="#login">Login</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -30,14 +28,14 @@
 					</ul>
 				{% endif %}
 			{% endwith %}
-			<div id="loginModal" class="modal">
+			<div id="login" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Login</h4>
 						</div>
-						<form action="/login/" method="post" class="form-horizontal">
+						<form action="/login/" method="post" class="form-horizontal responsiveForm">
 							<div class="modal-body">
 								<div class="form-group">
 									<label for="username_text" class="control-label">Username</label>
@@ -49,7 +47,7 @@
 								</div>
 							</div>
 							<div class="modal-footer">
-								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#registerModal">New user?</a>
+								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#register">New user?</a>
 								<button type="reset" class="btn btn-default">Reset</button>
 								<button type="submit" class="btn btn-primary">Submit</button>
 							</div>
@@ -57,14 +55,14 @@
 					</div>
 				</div>
 			</div>
-			<div id="registerModal" class="modal">
+			<div id="register" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Register</h4>
 						</div>
-						<form action="/register/" method="post" class="form-horizontal">
+						<form action="/register/" method="post" class="form-horizontal responsiveForm">
 							<div class="modal-body">
 								<div class="form-group">
 									<label for="username_text" class="control-label">Username</label>
@@ -76,7 +74,7 @@
 								</div>
 							</div>
 							<div class="modal-footer">
-								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#loginModal">Already a user?</a>
+								<a class="pull-left" data-toggle="modal" data-dismiss="modal" href="#login">Already a user?</a>
 								<button type="reset" class="btn btn-default">Reset</button>
 								<button type="submit" class="btn btn-primary">Submit</button>
 							</div>
@@ -84,14 +82,14 @@
 					</div>
 				</div>
 			</div>
-			<div id="responseModal" class="modal">
+			<div id="response" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Response</h4>
 						</div>
-						<div id="response" class="modal-body"></div>
+						<div id="message" class="modal-body"></div>
 					</div>
 				</div>
 			</div>
@@ -102,15 +100,15 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script>
 		<script>
 		$(document).ready(function() {
-			$('#loginModal').modal('show');
+			$('#login').modal('show');
 		});
 		$(function() {
-			$('form').ajaxForm(function(result) {
+			$('.responsiveForm').ajaxForm(function(result) {
 				$('.modal').modal('hide');
-				$('#response').text(result);
-				$('#responseModal').modal('show');
+				$('#message').text(result);
+				$('#response').modal('show');
 			});
-			$('#responseModal').on('hide.bs.modal', function() {
+			$('#response').on('hide.bs.modal', function() {
 				window.location.replace("/");
 			});
 		});

@@ -3,11 +3,9 @@
 <html lang="en">
 	<head>
 		<title>CAM2</title>
-		<!-- Required meta tags -->
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- Bootstrap CSS -->
-		<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css" rel="stylesheet" integrity="sha384-D9XILkoivXN+bcvB2kSOowkIvIcBbNdoDQvfBNsxYAIieZbx8/SI4NeUvrRGCpDi" crossorigin="anonymous">
 	</head>
 	<body>
 		<nav class="navbar navbar-default">
@@ -22,8 +20,8 @@
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ current_user.id }} <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a data-toggle="modal" href="#logoutModal">Logout</a></li>
-							<li><a data-toggle="modal" href="#unregisterModal">Unregister</a></li>
+							<li><a data-toggle="modal" href="#logout">Logout</a></li>
+							<li><a data-toggle="modal" href="#unregister">Unregister</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -52,9 +50,9 @@
 					{% for i in range(submissions|length) %}
 						{% set submission = submissions[i] %}
 						<tr>
-							<td>{{ submission['submission_id'] }}</td>
-							<td>{{ submission['status'] }}</td>
-							<td>
+							<td class="align-middle">{{ submission['submission_id'] }}</td>
+							<td class="align-middle">{{ submission['status'] }}</td>
+							<td class="align-middle">
 								<a href="#" data-toggle="modal" data-target="#stdout{{ i }}">stdout</a>
 								<div id="stdout{{ i }}" class="modal">
 									<div class="modal-dialog">
@@ -70,7 +68,7 @@
 									</div>
 								</div>
 							</td>
-							<td>
+							<td class="align-middle">
 								<a href="#" data-toggle="modal" data-target="#stderr{{ i }}">stderr</a>
 								<div id="stderr{{ i }}" class="modal">
 									<div class="modal-dialog">
@@ -86,19 +84,39 @@
 									</div>
 								</div>
 							</td>
+							<td class="align-middle">
+								<form action="/delete/" method="post" class="pull-right form-inline responsiveForm">
+									<input type="hidden" name="submission_id" value="{{ submission['submission_id'] }}">
+									<button type="submit" class="btn btn-link btn-xs" title="Delete"{% if submission['status'] == 'RUNNING' %} disabled{% endif %}>
+										<span class="glyphicon">&#xe014;</span>
+									</button>
+								</form>
+								<form action="/download/" method="post" class="pull-right form-inline">
+									<input type="hidden" name="submission_id" value="{{ submission['submission_id'] }}">
+									<button type="submit" class="btn btn-link btn-xs" title="Download"{% if submission['status'] == 'RUNNING' %} disabled{% endif %}>
+										<span class="glyphicon">&#xe025;</span>
+									</button>
+								</form>
+								<form action="/terminate/" method="post" class="pull-right form-inline responsiveForm">
+									<input type="hidden" name="submission_id" value="{{ submission['submission_id'] }}">
+									<button type="submit" class="btn btn-link btn-xs" title="Terminate"{% if submission['status'] != 'RUNNING' %} disabled{% endif %}>
+										<span class="glyphicon">&#xe090;</span>
+									</button>
+								</form>
+							</td>
 						</tr>
 					{% endfor %}
 				</tbody>
 			</table>
-			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#submissionModal">New Submission</button>
-			<div id="submissionModal" class="modal">
+			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#submission">New Submission</button>
+			<div id="submission" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">New Submission</h4>
 						</div>
-						<form action="/submit/" method="post" enctype="multipart/form-data" class="form-horizontal">
+						<form action="/submit/" method="post" enctype="multipart/form-data" class="form-horizontal responsiveForm">
 							<div class="modal-body">
 								<div class="form-group">
 									<label for="conf_file" class="control-label">Request file</label>
@@ -121,14 +139,14 @@
 					</div>
 				</div>
 			</div>
-			<div id="logoutModal" class="modal">
+			<div id="logout" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Logout?</h4>
 						</div>
-							<form action="/logout/" method="post" class="form-horizontal">
+							<form action="/logout/" method="post" class="form-horizontal responsiveForm">
 								<div class="modal-body">
 									<p>Are you sure you want to logout?</p>
 								</div>
@@ -139,14 +157,14 @@
 					</div>
 				</div>
 			</div>
-			<div id="unregisterModal" class="modal">
+			<div id="unregister" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Unregister?</h4>
 						</div>
-							<form action="/unregister/" method="post" class="form-horizontal">
+							<form action="/unregister/" method="post" class="form-horizontal responsiveForm">
 								<div class="modal-body">
 									<p>Are you sure you want to unregister from the system?</p>
 									<p>All your data will be lost!!!</p>
@@ -159,14 +177,14 @@
 					</div>
 				</div>
 			</div>
-			<div id="responseModal" class="modal">
+			<div id="response" class="modal">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title">Response</h4>
 						</div>
-						<div id="response" class="modal-body"></div>
+						<div id="message" class="modal-body"></div>
 					</div>
 				</div>
 			</div>
@@ -177,12 +195,12 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script>
 		<script>
 		$(function() {
-			$('form').ajaxForm(function(result) {
+			$('.responsiveForm').ajaxForm(function(result) {
 				$('.modal').modal('hide');
-				$('#response').text(result);
-				$('#responseModal').modal('show');
+				$('#message').text(result);
+				$('#response').modal('show');
 			});
-			$('#responseModal').on('hide.bs.modal', function() {
+			$('#response').on('hide.bs.modal', function() {
 				window.location.replace("/");
 			});
 		});

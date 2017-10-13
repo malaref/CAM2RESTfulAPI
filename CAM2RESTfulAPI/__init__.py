@@ -8,7 +8,7 @@ all the global (shared) objects (Singleton pattern).
 
 """
 
-from flask import Flask
+from flask import Flask, request, redirect, abort
 from flask_login import LoginManager, UserMixin
 from clients.storage_client import StorageClient
 from clients.database_client import DatabaseClient
@@ -68,7 +68,11 @@ def load_user(user_id):
 		user.id = user_id
 		return user
 	return None
-login_manager.login_view = "/authenticate/"
+@login_manager.unauthorized_handler
+def unauthorized():
+	if request.user_agent.browser is None:
+		return "Unauthorized access!\nPlease login with valid credentials and try again!"
+	return redirect('/authenticate/')
 
 # Including the routes
 import routes
