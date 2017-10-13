@@ -63,6 +63,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
+	'''Loads a user from a user_id as needed by Flask-Login'''
 	if database_client.query_db('SELECT * FROM Users WHERE username=?', args=(str(user_id),), one=True) is not None:
 		user = UserMixin()
 		user.id = user_id
@@ -70,6 +71,7 @@ def load_user(user_id):
 	return None
 @login_manager.unauthorized_handler
 def unauthorized():
+	'''Handler function to be called by Flask-Login when the @login_required check fails'''
 	if request.user_agent.browser is None:
 		return "Unauthorized access!\nPlease login with valid credentials and try again!"
 	return redirect('/authenticate/')
