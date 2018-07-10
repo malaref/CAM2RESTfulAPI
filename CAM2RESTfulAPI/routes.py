@@ -16,7 +16,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from clients.job_client import JobClient
 
-import os
+import os, re
 
 # NOTE May move this method to the DatabaseClient class
 def _get_submission(username, submission_id):
@@ -46,6 +46,8 @@ def submit():
 	'''Accepts an authenticated request. Passes the needed parameter to the back-end to start a new job'''
 	username = str(current_user.id)
 	submission_id = request.form['submission_id']
+	if not re.match(r'^\w+$', submission_id):
+		return '"submission_id" can only include alphanumeric characters and underscores'
 	if not request.files.has_key('conf'):
 		return 'No configuration file'
 	elif not request.files.has_key('analyzer'):
@@ -180,9 +182,12 @@ def register():
 	'''Registers a new user'''
 	username = request.form['username']
 	password = request.form['password']
+	invalid = '"username" can only include alphanumeric characters and underscores'
 	registered = 'A user with "username" = "{}" added!'.format(username)
 	exists = 'A user with "username" = "{}" already exists!'.format(username)
 	
+	if not re.match(r'^\w+$', username):
+		return invalid
 	if database_client.query_db('SELECT * FROM Users WHERE username=?', args=(username,), one=True) is None:
 		database_client.update_db('INSERT INTO Users(username, password_hash) VALUES (?, ?);', args=(username, generate_password_hash(password)))
 		return registered
